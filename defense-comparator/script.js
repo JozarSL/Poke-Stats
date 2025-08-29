@@ -201,8 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         comparisonResultsDiv.innerHTML = `
-            <p>Your most similar physical defender: <strong>${capitalize(closestPhysical.name)}</strong> (HP: ${closestPhysical.hp}, DEF: ${closestPhysical.defense})</p>
-            <p>Your most similar special defender: <strong>${capitalize(closestSpecial.name)}</strong> (HP: ${closestSpecial.hp}, Sp.DEF: ${closestSpecial.spDefense})</p>
+            <p>Your Physical Bulk is: <strong>${userPhysicalBulk}</strong>; the closest to that is: 
+            <strong>${capitalize(closestPhysical.name)}</strong> [Bulk (HP: ${closestPhysical.hp}, DEF: ${closestPhysical.defense})]</p>
+
+            <p>Your Special Bulk is: <strong>${userSpecialBulk}</strong>; the closest to that is: 
+            <strong>${capitalize(closestSpecial.name)}</strong> [Bulk (HP: ${closestSpecial.hp}, Sp.DEF: ${closestSpecial.spDefense})]</p>
         `;
 
         displayInGameStats(baseHp, baseDef, baseSpd);
@@ -287,4 +290,5 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
 
