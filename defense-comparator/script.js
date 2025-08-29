@@ -200,13 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (specialDiff < closestSpecial.diff) closestSpecial = { ...stats, diff: specialDiff };
         }
 
-        comparisonResultsDiv.innerHTML = `
-            <p>Your Physical Bulk is: <strong>${userPhysicalBulk}</strong>; the closest to that is: 
-            <strong>${capitalize(closestPhysical.name)}</strong> [Bulk (HP: ${closestPhysical.hp}, DEF: ${closestPhysical.defense})]</p>
+            comparisonResultsDiv.innerHTML = `
+               <p>The closest Physical Bulk (${userPhysicalBulk}) is: 
+               <strong>${capitalize(closestPhysical.name)}</strong> 
+               (${closestPhysical.hp}, ${closestPhysical.defense}; ${userPhysicalBulk})</p>
 
-            <p>Your Special Bulk is: <strong>${userSpecialBulk}</strong>; the closest to that is: 
-            <strong>${capitalize(closestSpecial.name)}</strong> [Bulk (HP: ${closestSpecial.hp}, Sp.DEF: ${closestSpecial.spDefense})]</p>
-        `;
+               <p>The closest Special Bulk (${userSpecialBulk}) is: 
+               <strong>${capitalize(closestSpecial.name)}</strong> 
+               (${closestSpecial.hp}, ${closestSpecial.spDefense}; ${userSpecialBulk})</p>
+            `;
 
         displayInGameStats(baseHp, baseDef, baseSpd);
 
@@ -290,5 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
 
 
