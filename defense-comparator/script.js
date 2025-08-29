@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { 
     const form = document.getElementById('defense-form');
     const baseHpInput = document.getElementById('base-hp');
     const baseDefenseInput = document.getElementById('base-defense');
@@ -7,12 +7,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const comparisonResultsDiv = document.getElementById('comparison-results');
     const ingameStatsResultsDiv = document.getElementById('ingame-stats-results');
     const loadingMessage = document.getElementById('loading-message');
-    const submitButton = form.querySelector('button[type="submit"]');
+    const submitButton = form?.querySelector('button[type="submit"]');
+
+    if (!form || !submitButton || !comparisonResultsDiv || !ingameStatsResultsDiv || !resultsSection || !loadingMessage) {
+        console.error('Missing required DOM elements. Check your HTML IDs.');
+        return;
+    }
 
     let allPokemonList = [];
-    const statsCache = {}; // cache local para stats
+    const statsCache = {};
+    let currentRunAbort = null; 
 
-    // Fetch lista de Pokémon
+    
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    async function fetchWithRetry(url, { tries = 5, backoff = 600 } = {}) {
+        for (let i = 0; i < tries; i++) {
+            try {
+                const res = await fetch(url);
+                if (res.status === 429) {
+                    
+                    await sleep(backoff * (i + 1));
+                    continue;
+                }
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res;
+            } catch (e) {
+                if (i === tries - 1) throw e;
+                await sleep(backoff * (i + 1));
+            }
+        }
+        throw new Error('Unreachable');
+    }
+
+    function pLimit(concurrency) {
+        let active = 0;
+        const queue = [];
+        const next = () => {
+            if (active >= concurrency || queue.length === 0) return;
+            active++;
+            const { fn, resolve, reject } = queue.shift();
+            fn().then(resolve, reject).finally(() => {
+                active--;
+                next();
+            });
+        };
+        return (fn) => new Promise((resolve, reject) => {
+            queue.push({ fn, resolve, reject });
+            next();
+        });
+    }
+
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');
+    }
+
+    // ----- carga de lista -----
     async function fetchPokemonList() {
         submitButton.disabled = true;
         loadingMessage.style.display = 'block';
@@ -21,37 +71,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const cached = localStorage.getItem('allPokemonList');
         if (cached) {
             allPokemonList = JSON.parse(cached);
-            submitButton.disabled = false;
             loadingMessage.style.display = 'none';
+            submitButton.disabled = false;
             return;
         }
 
         try {
-            const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1500');
+            const response = await fetchWithRetry('https://pokeapi.co/api/v2/pokemon?limit=1500');
             const data = await response.json();
             allPokemonList = data.results.map(p => ({ name: p.name, url: p.url }));
             localStorage.setItem('allPokemonList', JSON.stringify(allPokemonList));
         } catch (error) {
             console.error(error);
-            loadingMessage.textContent = "Error loading Pokémon list. Please reload the page.";
+            loadingMessage.textContent = "Error loading list. Please reload the page.";
         } finally {
             loadingMessage.style.display = 'none';
             submitButton.disabled = false;
         }
     }
 
-    // Fetch stats de un Pokémon (usa cache si ya existe)
+    // ----- carga de stats con cache -----
     async function fetchPokemonStats(pokemon) {
         if (statsCache[pokemon.name]) return statsCache[pokemon.name];
 
         const cachedStats = localStorage.getItem(`stats-${pokemon.name}`);
         if (cachedStats) {
-            statsCache[pokemon.name] = JSON.parse(cachedStats);
-            return statsCache[pokemon.name];
+            const obj = JSON.parse(cachedStats);
+            statsCache[pokemon.name] = obj;
+            return obj;
         }
 
         try {
-            const res = await fetch(pokemon.url);
+            const res = await fetchWithRetry(pokemon.url, { tries: 6, backoff: 700 });
             const data = await res.json();
             const stats = {
                 name: pokemon.name,
@@ -68,15 +119,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function findAndDisplay(event) {
-        event.preventDefault();
+    // Pre-carga todas las stats (solo las faltantes), con concurrencia y progreso
+    async function ensureAllStatsLoaded(signal) {
+        // si ya tenías stats en localStorage, statsCache se llenará on-demand al leerlas
+        const toFetch = allPokemonList.filter(p => !localStorage.getItem(`stats-${p.name}`));
+
+        if (toFetch.length === 0) return;
+
         submitButton.disabled = true;
         loadingMessage.style.display = 'block';
-        loadingMessage.textContent = 'Calculating... (it may take a while the first time)';
+
+        const limit = pLimit(10); 
+        let done = 0;
+        const total = toFetch.length;
+
+        await Promise.allSettled(
+            toFetch.map(p => limit(async () => {
+                if (signal?.aborted) return;
+                const s = await fetchPokemonStats(p);
+                done++;
+                if (done % 10 === 0 || done === total) {
+                    loadingMessage.textContent = `Downloading base stats... ${done}/${total}`;
+                }
+            }))
+        );
+
+        loadingMessage.style.display = 'none';
+        submitButton.disabled = false;
+    }
+
+    // ----- cálculo y render -----
+    async function findAndDisplay(event) {
+        event.preventDefault();
+
+        // cancela ejecución anterior si existe
+        if (currentRunAbort) currentRunAbort.abort();
+        currentRunAbort = new AbortController();
+        const { signal } = currentRunAbort;
+
+        submitButton.disabled = true;
+        loadingMessage.style.display = 'block';
+        loadingMessage.textContent = 'Preparing data...';
 
         const baseHp = parseInt(baseHpInput.value);
         const baseDef = parseInt(baseDefenseInput.value);
         const baseSpd = parseInt(baseSpDefenseInput.value);
+
+        if (Number.isNaN(baseHp) || Number.isNaN(baseDef) || Number.isNaN(baseSpd)) {
+            loadingMessage.textContent = 'Please enter valid base stats.';
+            submitButton.disabled = false;
+            return;
+        }
+
+        
+        await ensureAllStatsLoaded(signal);
+        if (signal.aborted) return;
+
+        loadingMessage.textContent = 'Calculating...';
 
         const userPhysicalBulk = baseHp * baseDef;
         const userSpecialBulk = baseHp * baseSpd;
@@ -84,9 +183,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let closestPhysical = { diff: Infinity };
         let closestSpecial = { diff: Infinity };
 
+        // Lee de cache/localStorage sin pedir a la red
         for (const p of allPokemonList) {
-            const stats = await fetchPokemonStats(p);
-            if (!stats) continue;
+            if (signal.aborted) return;
+
+            let stats = statsCache[p.name];
+            if (!stats) {
+                const cached = localStorage.getItem(`stats-${p.name}`);
+                if (!cached) continue; 
+                stats = JSON.parse(cached);
+                statsCache[p.name] = stats;
+            }
 
             const physicalBulk = stats.hp * stats.defense;
             const specialBulk = stats.hp * stats.spDefense;
@@ -98,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (specialDiff < closestSpecial.diff) closestSpecial = { ...stats, diff: specialDiff };
         }
 
-        // Mostrar resultados en inglés
         comparisonResultsDiv.innerHTML = `
             <p>Your most similar physical defender: <strong>${capitalize(closestPhysical.name)}</strong> (HP: ${closestPhysical.hp}, DEF: ${closestPhysical.defense})</p>
             <p>Your most similar special defender: <strong>${capitalize(closestSpecial.name)}</strong> (HP: ${closestSpecial.hp}, Sp.DEF: ${closestSpecial.spDefense})</p>
@@ -111,16 +217,13 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = false;
     }
 
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');
+    function calculateHP(base, ev = 0, iv = 31, level = 100) {
+        
+        return Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10;
     }
 
-    function calculateHP(base, ev = 0, iv = 31) {
-        return Math.floor(((2 * base + iv + Math.floor(ev / 4)) * 100) / 100) + 100 + 10;
-    }
-
-    function calculateStat(base, ev = 0, iv = 31, nature = 1.0) {
-        const baseValue = Math.floor(((2 * base + iv + Math.floor(ev / 4)) * 100) / 100) + 5;
+    function calculateStat(base, ev = 0, iv = 31, nature = 1.0, level = 100) {
+        const baseValue = Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5;
         return Math.floor(baseValue * nature);
     }
 
