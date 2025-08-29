@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');
     }
 
-    // ----- carga de lista -----
+    
     async function fetchPokemonList() {
         submitButton.disabled = true;
         loadingMessage.style.display = 'block';
-        loadingMessage.textContent = 'Loading Pokémon list...';
+        loadingMessage.textContent = 'Loading Pokémon list... (only the first time)';
 
         const cached = localStorage.getItem('allPokemonList');
         if (cached) {
@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ----- carga de stats con cache -----
     async function fetchPokemonStats(pokemon) {
         if (statsCache[pokemon.name]) return statsCache[pokemon.name];
 
@@ -119,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Pre-carga todas las stats (solo las faltantes), con concurrencia y progreso
+  
     async function ensureAllStatsLoaded(signal) {
         // si ya tenías stats en localStorage, statsCache se llenará on-demand al leerlas
         const toFetch = allPokemonList.filter(p => !localStorage.getItem(`stats-${p.name}`));
@@ -148,11 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = false;
     }
 
-    // ----- cálculo y render -----
     async function findAndDisplay(event) {
         event.preventDefault();
 
-        // cancela ejecución anterior si existe
         if (currentRunAbort) currentRunAbort.abort();
         currentRunAbort = new AbortController();
         const { signal } = currentRunAbort;
@@ -170,8 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = false;
             return;
         }
-
-        
+  
         await ensureAllStatsLoaded(signal);
         if (signal.aborted) return;
 
@@ -183,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let closestPhysical = { diff: Infinity };
         let closestSpecial = { diff: Infinity };
 
-        // Lee de cache/localStorage sin pedir a la red
         for (const p of allPokemonList) {
             if (signal.aborted) return;
 
@@ -292,3 +287,4 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
