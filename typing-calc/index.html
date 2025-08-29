@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Typing Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="corner-nav">
+        <a href="../stats-comparator/index.html">Stats chart</a>
+        <a href="../defense-comparator/index.html">Defense Comp.</a>
+    </nav>
+
+    <div class="container">
+        <h1>Typing Calculator</h1>
+        <p class="description">Select a combination of types to analyze their defensive and offensive strengths and weaknesses.</p>
+        
+        <div class="type-selectors">
+            <div class="selector-group">
+                <label for="type1">Primary Type</label>
+                <select id="type1"></select>
+            </div>
+            <div class="selector-group">
+                <label for="type2">Secundary Type</label>
+                <select id="type2"></select>
+            </div>
+            <div class="selector-group">
+                <label for="type3">Coverage</label>
+                <select id="type3"></select>
+            </div>
+        </div>
+        <div class="button-group">
+            <button id="calculate-btn">Analyze</button>
+        </div>
+        
+        <div id="results-section" class="results" style="display:none;" aria-live="polite"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stats Chart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="corner-nav">
+        <a href="../defense-comparator/index.html">Defense Comp.</a>
+        <a href="../typing-calc/index.html">Typing Calc</a>
+    </nav>
+
+    <div class="container">
+        <h1>Stats Comparator</h1>
+        <div class="input-group">
+            <div class="stats-form">
+                <h3>Pokemon 1</h3>
+                <div class="pokemon-selector">
+                    <label for="p1-pokemon-select">Select a Pokemon:</label>
+                    <select id="p1-pokemon-select"></select>
+                </div>
+                <form id="poke1-form">
+                    <div class="stat-input"><label for="p1-hp">HP:</label><input type="number" id="p1-hp" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p1-attack">Attack:</label><input type="number" id="p1-attack" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p1-defense">Defense:</label><input type="number" id="p1-defense" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p1-sp-attack">Sp. Atk:</label><input type="number" id="p1-sp-attack" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p1-sp-defense">Sp. Def:</label><input type="number" id="p1-sp-defense" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p1-speed">Speed:</label><input type="number" id="p1-speed" min="1" max="255" required></div>
+                </form>
+            </div>
+            <div class="stats-form" id="poke2-form">
+                <h3>Pokemon 2</h3>
+                <div class="pokemon-selector">
+                    <label for="p2-pokemon-select">Select a Pokemon:</label>
+                    <select id="p2-pokemon-select"></select>
+                </div>
+                <form id="poke2-subform">
+                    <div class="stat-input"><label for="p2-hp">HP:</label><input type="number" id="p2-hp" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p2-attack">Attack:</label><input type="number" id="p2-attack" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p2-defense">Defense:</label><input type="number" id="p2-defense" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p2-sp-attack">Sp. Atk:</label><input type="number" id="p2-sp-attack" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p2-sp-defense">Sp. Def:</label><input type="number" id="p2-sp-defense" min="1" max="255" required></div>
+                    <div class="stat-input"><label for="p2-speed">Speed:</label><input type="number" id="p2-speed" min="1" max="255" required></div>
+                </form>
+            </div>
+        </div>
+        <div class="button-group">
+            <button id="show-stats-button">Show Stats</button>
+            <button id="mode-button">Mode 2 Pokemon</button>
+        </div>
+        
+        <div id="results-section" class="results" style="display:none;" aria-live="polite">
+            <hr>
+            <h2>Results</h2>
+            <div id="single-result"></div>
+            <div id="comparison-result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

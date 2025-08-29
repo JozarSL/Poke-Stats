@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Defense Comparator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="corner-nav">
+        <a href="../stats-comparator/index.html">Stats Chart</a>
+        <a href="../typing-calc/index.html">Typing Calc</a>
+    </nav>
+
+    <div class="container">
+        <h1>Defense Comparator</h1>
+        <p class="description">Enter a Pokémon's base stats to find its closest defensive counterparts and calculate its battle potential.</p>
+        
+        <div id="loading-message" style="display: none; text-align: center; margin: 20px;">
+            <strong>loading all pokemon stats... (it may take a while the first time)</strong>
+        </div>
+
+        <form id="defense-form">
+            <div class="input-grid">
+                <div class="stat-input">
+                    <label for="base-hp">Base HP:</label>
+                    <input type="number" id="base-hp" min="1" max="255" required>
+                </div>
+                <div class="stat-input">
+                    <label for="base-defense">Base Defense:</label>
+                    <input type="number" id="base-defense" min="1" max="255" required>
+                </div>
+                <div class="stat-input">
+                    <label for="base-sp-defense">Base Sp. Defense:</label>
+                    <input type="number" id="base-sp-defense" min="1" max="255" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="submit">Calculate</button>
+            </div>
+        </form>
+        
+        <div id="results-section" class="results" style="display:none;" aria-live="polite">
+            <hr>
+            <h2>comparison results</h2>
+            <div id="comparison-results"></div>
+            
+            <hr>
+            <h2>Ingame Stats (level 100)</h2>
+            <div id="ingame-stats-results"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

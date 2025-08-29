@@ -1,0 +1,29 @@
+body { font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px; }
+.container { max-width: 900px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+.input-group { display: flex; justify-content: space-around; gap: 20px; }
+.stats-form { flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+.stats-form h3 { text-align: center; margin-top: 0; }
+.stat-input { margin-bottom: 10px; }
+.stat-input label { display: block; font-weight: bold; }
+.stat-input input, .stat-input select { width: 100%; padding: 5px; box-sizing: border-box; }
+.results { margin-top: 20px; }
+.stat-bar-container { display: flex; align-items: center; margin-bottom: 5px; }
+.stat-name { width: 80px; font-weight: bold; text-align: right; margin-right: 20px; }
+.stat-value { width: 40px; text-align: left; margin-right: 10px; }
+.stat-bar { flex-grow: 1; height: 20px; border-radius: 3px; background-color: #eee; position: relative; overflow: hidden; }
+.stat-bar-fill { height: 100%; transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out; position: absolute; left: 0; top: 0; }
+.comparison-section { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.comparison-bar-container { width: 45%; display: flex; align-items: center; margin-bottom: 5px; }
+.comparison-bar-container.p2 { flex-direction: row-reverse; text-align: right; }
+.comparison-bar-container .stat-value, .comparison-bar-container .stat-name { width: auto; margin-right: 0; }
+.comparison-bar-container .stat-name { width: 70px; text-align: left; margin-right: 20px; }
+.comparison-bar-container.p2 .stat-name { text-align: right; }
+.middle-comparison { width: 10%; text-align: center; font-weight: bold; font-size: 14px; }
+.total-stats { text-align: center; font-weight: bold; margin-top: 10px; }
+.button-group { text-align: center; margin-top: 20px; }
+button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
+#poke2-form { display: none; }
+.pokemon-selector { margin-bottom: 15px; }
+.corner-nav { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
+.corner-nav a { text-decoration: none; background-color: #007bff; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; transition: background-color 0.2s; }
+.corner-nav a:hover { background-color: #0056b3; }
