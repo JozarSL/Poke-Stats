@@ -1,24 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => { 
+document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('defense-form');
     const baseHpInput = document.getElementById('base-hp');
     const baseDefenseInput = document.getElementById('base-defense');
     const baseSpDefenseInput = document.getElementById('base-sp-defense');
     const resultsSection = document.getElementById('results-section');
-    const comparisonResultsDiv = document.getElementById('comparison-results');
     const ingameStatsResultsDiv = document.getElementById('ingame-stats-results');
     const loadingMessage = document.getElementById('loading-message');
     const submitButton = form?.querySelector('button[type="submit"]');
 
-    if (!form || !submitButton || !comparisonResultsDiv || !ingameStatsResultsDiv || !resultsSection || !loadingMessage) {
+    if (!form || !submitButton || !ingameStatsResultsDiv || !resultsSection || !loadingMessage) {
         console.error('Missing required DOM elements. Check your HTML IDs.');
         return;
     }
 
     let allPokemonList = [];
     const statsCache = {};
-    let currentRunAbort = null; 
+    let currentRunAbort = null;
 
-    
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
     async function fetchWithRetry(url, { tries = 5, backoff = 600 } = {}) {
@@ -26,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch(url);
                 if (res.status === 429) {
-                    
                     await sleep(backoff * (i + 1));
                     continue;
                 }
@@ -62,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');
     }
 
-    
     async function fetchPokemonList() {
         submitButton.disabled = true;
         loadingMessage.style.display = 'block';
@@ -118,9 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-  
     async function ensureAllStatsLoaded(signal) {
-        // si ya tenías stats en localStorage, statsCache se llenará on-demand al leerlas
         const toFetch = allPokemonList.filter(p => !localStorage.getItem(`stats-${p.name}`));
 
         if (toFetch.length === 0) return;
@@ -128,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = true;
         loadingMessage.style.display = 'block';
 
-        const limit = pLimit(10); 
+        const limit = pLimit(10);
         let done = 0;
         const total = toFetch.length;
 
@@ -145,6 +139,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loadingMessage.style.display = 'none';
         submitButton.disabled = false;
+    }
+
+    function calculateHP(base, ev = 0, iv = 31, level = 100) {
+        return Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10;
+    }
+
+    function calculateStat(base, ev = 0, iv = 31, nature = 1.0, level = 100) {
+        const baseValue = Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5;
+        return Math.floor(baseValue * nature);
     }
 
     async function findAndDisplay(event) {
@@ -167,76 +170,29 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = false;
             return;
         }
-  
+
         await ensureAllStatsLoaded(signal);
         if (signal.aborted) return;
 
-        loadingMessage.textContent = 'Calculating...';
-
-        const userPhysicalBulk = baseHp * baseDef;
-        const userSpecialBulk = baseHp * baseSpd;
-
-        let closestPhysical = { diff: Infinity };
-        let closestSpecial = { diff: Infinity };
-
-        for (const p of allPokemonList) {
-            if (signal.aborted) return;
-
-            let stats = statsCache[p.name];
-            if (!stats) {
-                const cached = localStorage.getItem(`stats-${p.name}`);
-                if (!cached) continue; 
-                stats = JSON.parse(cached);
-                statsCache[p.name] = stats;
-            }
-
-            const physicalBulk = stats.hp * stats.defense;
-            const specialBulk = stats.hp * stats.spDefense;
-
-            const physicalDiff = Math.abs(userPhysicalBulk - physicalBulk);
-            const specialDiff = Math.abs(userSpecialBulk - specialBulk);
-
-            if (physicalDiff < closestPhysical.diff) closestPhysical = { ...stats, diff: physicalDiff };
-            if (specialDiff < closestSpecial.diff) closestSpecial = { ...stats, diff: specialDiff };
-        }
-
-            comparisonResultsDiv.innerHTML = `
-               <p>The closest Physical Bulk (${userPhysicalBulk}) is: 
-               <strong>${capitalize(closestPhysical.name)}</strong> 
-               (${closestPhysical.hp}, ${closestPhysical.defense}; ${userPhysicalBulk})</p>
-
-               <p>The closest Special Bulk (${userSpecialBulk}) is: 
-               <strong>${capitalize(closestSpecial.name)}</strong> 
-               (${closestSpecial.hp}, ${closestSpecial.spDefense}; ${userSpecialBulk})</p>
-            `;
-
-        displayInGameStats(baseHp, baseDef, baseSpd);
+        displayInGameStats(baseHp, baseDef, baseSpd, signal);
 
         resultsSection.style.display = 'block';
         loadingMessage.style.display = 'none';
         submitButton.disabled = false;
     }
 
-    function calculateHP(base, ev = 0, iv = 31, level = 100) {
-        
-        return Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10;
-    }
-
-    function calculateStat(base, ev = 0, iv = 31, nature = 1.0, level = 100) {
-        const baseValue = Math.floor(((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5;
-        return Math.floor(baseValue * nature);
-    }
-
-    function displayInGameStats(hp, def, spd) {
+    async function displayInGameStats(hp, def, spd, signal) {
         ingameStatsResultsDiv.innerHTML = '';
-
         const builds = [
-            { name: "Physical Wall", stats: { "HP": calculateHP(hp, 252), "Defense": calculateStat(def, 252, 31, 1.1), "Sp. Defense": calculateStat(spd, 4) } },
-            { name: "Special Wall", stats: { "HP": calculateHP(hp, 252), "Defense": calculateStat(def, 4), "Sp. Defense": calculateStat(spd, 252, 31, 1.1) } },
-            { name: "Max HP (Neutral)", stats: { "HP": calculateHP(hp, 252), "Defense": calculateStat(def, 0), "Sp. Defense": calculateStat(spd, 0) } }
+            { name: "Physical Wall", stats: { "HP": calculateHP(hp, 252), "Defense": calculateStat(def, 252, 31, 1.1), "Sp. Defense": calculateStat(spd, 4) }, evs: { hp: 252, def: 252, spd: 4 } },
+            { name: "Special Wall", stats: { "HP": calculateHP(hp, 252), "Defense": calculateStat(def, 4), "Sp. Defense": calculateStat(spd, 252, 31, 1.1) }, evs: { hp: 252, def: 4, spd: 252 } },
+            { name: "0 EVs", stats: { "HP": calculateHP(hp, 0), "Defense": calculateStat(def, 0), "Sp. Defense": calculateStat(spd, 0) }, evs: { hp: 0, def: 0, spd: 0 } }
         ];
 
-        builds.forEach(build => {
+        for (const build of builds) {
+            if (signal.aborted) return;
+
+            // 1. Display the stat bars
             const buildDiv = document.createElement('div');
             buildDiv.className = 'build-container';
             const title = document.createElement('h3');
@@ -247,14 +203,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 const statBar = createStatBar(statName, statValue);
                 buildDiv.appendChild(statBar);
             }
-
             ingameStatsResultsDiv.appendChild(buildDiv);
-        });
+
+            // 2. Find and display the comparisons
+            const userHp = build.stats.HP;
+            const userDef = build.stats.Defense;
+            const userSpd = build.stats['Sp. Defense'];
+            const userPhysicalBulk = userHp * userDef;
+            const userSpecialBulk = userHp * userSpd;
+
+            let closestPhysical = { diff: Infinity, name: '' };
+            let closestSpecial = { diff: Infinity, name: '' };
+
+            for (const p of allPokemonList) {
+                if (signal.aborted) return;
+                let stats = statsCache[p.name];
+                if (!stats) {
+                    const cached = localStorage.getItem(`stats-${p.name}`);
+                    if (!cached) continue;
+                    stats = JSON.parse(cached);
+                    statsCache[p.name] = stats;
+                }
+                const pokeHp = calculateHP(stats.hp, build.evs.hp);
+                const pokeDef = calculateStat(stats.defense, build.evs.def);
+                const pokeSpd = calculateStat(stats.spDefense, build.evs.spd);
+
+                const physicalBulk = pokeHp * pokeDef;
+                const specialBulk = pokeHp * pokeSpd;
+
+                const physicalDiff = Math.abs(userPhysicalBulk - physicalBulk);
+                const specialDiff = Math.abs(userSpecialBulk - specialBulk);
+
+                if (physicalDiff < closestPhysical.diff) {
+                    closestPhysical = { ...stats, diff: physicalDiff, physicalBulk: physicalBulk, calculatedStats: { hp: pokeHp, def: pokeDef, spd: pokeSpd } };
+                }
+                if (specialDiff < closestSpecial.diff) {
+                    closestSpecial = { ...stats, diff: specialDiff, specialBulk: specialBulk, calculatedStats: { hp: pokeHp, def: pokeDef, spd: pokeSpd } };
+                }
+            }
+
+            const comparisonDiv = document.createElement('div');
+            comparisonDiv.className = 'comparison-section';
+            comparisonDiv.innerHTML = `
+                <h4>Defense Bulk Comparison:</h4>
+                <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Bulk: ${closestPhysical.physicalBulk})</p>
+                <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Bulk: ${closestSpecial.specialBulk})</p>
+            `;
+            ingameStatsResultsDiv.appendChild(comparisonDiv);
+        }
     }
 
     function getColor(stat) {
         const ratio = Math.max(0, Math.min(1, stat / 714));
-        const hue = 0 + ratio * (280 - 0); // rojo → violeta
+        const hue = 0 + ratio * (280 - 0);
         return `hsl(${hue}, 80%, 50%)`;
     }
 
@@ -292,6 +293,3 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
-
-
-
