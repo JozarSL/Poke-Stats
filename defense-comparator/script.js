@@ -209,8 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const userHp = build.stats.HP;
             const userDef = build.stats.Defense;
             const userSpd = build.stats['Sp. Defense'];
-            const userPhysicalBulk = userHp * userDef;
-            const userSpecialBulk = userHp * userSpd;
+            const userPhysicalBulk = (userHp * userDef)/804.76;
+            const userSpecialBulk = (userHp * userSpd)/804.76;
 
             let closestPhysical = { diff: Infinity, name: '' };
             let closestSpecial = { diff: Infinity, name: '' };
@@ -228,8 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pokeDef = calculateStat(stats.defense, build.evs.def);
                 const pokeSpd = calculateStat(stats.spDefense, build.evs.spd);
 
-                const physicalBulk = pokeHp * pokeDef;
-                const specialBulk = pokeHp * pokeSpd;
+                const physicalBulk = (pokeHp * pokeDef)/804.76;
+                const specialBulk = (pokeHp * pokeSpd)/804.76;
 
                 const physicalDiff = Math.abs(userPhysicalBulk - physicalBulk);
                 const specialDiff = Math.abs(userSpecialBulk - specialBulk);
@@ -294,3 +294,4 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
