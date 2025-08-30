@@ -78,7 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
         types.forEach(attackingType => {
             let multiplier = 1;
             defensiveTypes.forEach(defendingType => {
-                multiplier *= (typeChart[defendingType][attackingType] || 1);
+                // <-- cambio importante: usar ?? en vez de || para preservar 0 (inmunidades)
+                multiplier *= (typeChart[defendingType]?.[attackingType] ?? 1);
             });
             if (multiplier === 4) matchups['x4'].push(attackingType);
             else if (multiplier === 2) matchups['x2'].push(attackingType);
@@ -128,7 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const isWall = offensiveTypes.every(offense => {
                 let totalMultiplier = 1;
                 combo.forEach(defensiveType => {
-                    totalMultiplier *= (typeChart[defensiveType][offense.type] || 1);
+                    // <-- y aquí también usar ?? para preservar 0
+                    totalMultiplier *= (typeChart[defensiveType]?.[offense.type] ?? 1);
                 });
                 return totalMultiplier < 1;
             });
