@@ -245,10 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const comparisonDiv = document.createElement('div');
             comparisonDiv.className = 'comparison-section';
             comparisonDiv.innerHTML = `
-                <p>Your Calculated Physical Bulk: <strong>${userPhysicalBulk}</strong></p>
-                <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Bulk: ${closestPhysical.physicalBulk})</p>
-                <p>Your Calculated Special Bulk: <strong>${userSpecialBulk}</strong></p>
-                <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Bulk: ${closestSpecial.specialBulk})</p>
+                <p>Your Calculated Physical Bulk: <strong>${userPhysicalBulk.toFixed(2)}</strong></p>
+                <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Bulk: ${closestPhysical.physicalBulk.toFixed(2)})</p>
+                <p>Your Calculated Special Bulk: <strong>${userSpecialBulk.toFixed(2)}</strong></p>
+                <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Bulk: ${closestSpecial.specialBulk.toFixed(2)})</p>
             `;
             ingameStatsResultsDiv.appendChild(comparisonDiv);
         }
@@ -294,4 +294,5 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
 
