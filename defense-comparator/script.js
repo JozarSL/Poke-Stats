@@ -245,8 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const comparisonDiv = document.createElement('div');
             comparisonDiv.className = 'comparison-section';
             comparisonDiv.innerHTML = `
-                <h4>Defense Bulk Comparison:</h4>
+                <p>Your Calculated Physical Bulk: <strong>${userPhysicalBulk}</strong></p>
                 <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Bulk: ${closestPhysical.physicalBulk})</p>
+                <p>Your Calculated Special Bulk: <strong>${userSpecialBulk}</strong></p>
                 <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Bulk: ${closestSpecial.specialBulk})</p>
             `;
             ingameStatsResultsDiv.appendChild(comparisonDiv);
