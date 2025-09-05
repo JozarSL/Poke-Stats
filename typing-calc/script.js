@@ -1,27 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => { 
     const types = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
+    
     const typeChart = {
-        Normal: { Fighting: 2, Ghost: 0 }, Fire: { Water: 2, Grass: 0.5, Ice: 0.5, Ground: 2, Bug: 0.5, Rock: 2, Steel: 0.5, Fairy: 0.5 },
-        Water: { Fire: 0.5, Water: 0.5, Grass: 2, Electric: 2, Ice: 0.5, Steel: 0.5 }, Grass: { Fire: 2, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Poison: 2, Ground: 0.5, Flying: 2, Bug: 2 },
-        Electric: { Electric: 0.5, Ground: 2, Flying: 0.5, Steel: 0.5 }, Ice: { Fire: 2, Ice: 0.5, Fighting: 2, Rock: 2, Steel: 2 },
-        Fighting: { Flying: 2, Psychic: 2, Fairy: 2, Rock: 0.5, Bug: 0.5, Dark: 0.5 }, Poison: { Grass: 0.5, Fighting: 0.5, Poison: 0.5, Ground: 2, Psychic: 2, Bug: 0.5, Fairy: 0.5 },
-        Ground: { Water: 2, Grass: 2, Electric: 0, Ice: 2, Poison: 0.5, Rock: 0.5 }, Flying: { Grass: 0.5, Electric: 2, Ice: 2, Fighting: 0.5, Ground: 0, Bug: 0.5, Rock: 2 },
-        Psychic: { Fighting: 0.5, Psychic: 0.5, Bug: 2, Ghost: 2, Dark: 2 }, Bug: { Fire: 2, Grass: 0.5, Fighting: 0.5, Ground: 0.5, Flying: 2, Rock: 2 },
+        Normal: { Fighting: 2, Ghost: 0 }, 
+        Fire: { Water: 2, Grass: 0.5, Ice: 0.5, Ground: 2, Bug: 0.5, Rock: 2, Steel: 0.5, Fairy: 0.5 },
+        Water: { Fire: 0.5, Water: 0.5, Grass: 2, Electric: 2, Ice: 0.5, Steel: 0.5 }, 
+        Grass: { Fire: 2, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Poison: 2, Ground: 0.5, Flying: 2, Bug: 2 },
+        Electric: { Electric: 0.5, Ground: 2, Flying: 0.5, Steel: 0.5 }, 
+        Ice: { Fire: 2, Ice: 0.5, Fighting: 2, Rock: 2, Steel: 2 },
+        Fighting: { Flying: 2, Psychic: 2, Fairy: 2, Rock: 0.5, Bug: 0.5, Dark: 0.5 }, 
+        Poison: { Grass: 0.5, Fighting: 0.5, Poison: 0.5, Ground: 2, Psychic: 2, Bug: 0.5, Fairy: 0.5 },
+        Ground: { Water: 2, Grass: 2, Electric: 0, Ice: 2, Poison: 0.5, Rock: 0.5 }, 
+        Flying: { Grass: 0.5, Electric: 2, Ice: 2, Fighting: 0.5, Ground: 0, Bug: 0.5, Rock: 2 },
+        Psychic: { Fighting: 0.5, Psychic: 0.5, Bug: 2, Ghost: 2, Dark: 2 }, 
+        Bug: { Fire: 2, Grass: 0.5, Fighting: 0.5, Ground: 0.5, Flying: 2, Rock: 2 },
         Rock: { Normal: 0.5, Fire: 0.5, Water: 2, Grass: 2, Fighting: 2, Poison: 0.5, Ground: 2, Flying: 0.5, Steel: 2 },
-        Ghost: { Normal: 0, Fighting: 0, Poison: 0.5, Bug: 0.5, Ghost: 2, Dark: 2 }, Dragon: { Fire: 0.5, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Dragon: 2, Fairy: 2 },
-        Dark: { Psychic: 0, Dark: 0.5, Ghost: 0.5, Bug: 2, Fairy: 2, Fighting: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
+        Ghost: { Normal: 0, Fighting: 0, Poison: 0.5, Bug: 0.5, Ghost: 2, Dark: 2 }, 
+        Dragon: { Fire: 0.5, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Dragon: 2, Fairy: 2 },
+        Dark: { Psychic: 0, Dark: 0.5, Ghost: 0.5, Bug: 2, Fairy: 2, Fighting: 2 }, 
+        Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
         Fairy: { Fighting: 0.5, Poison: 2, Bug: 0.5, Dragon: 0, Dark: 0.5, Steel: 2 }
     };
-    const typeColors = { Normal: "#A8A878", Fire: "#F08030", Water: "#6890F0", Grass: "#78C850", Electric: "#F8D030", Ice: "#98D8D8", Fighting: "#C03028", Poison: "#A040A0", Ground: "#E0C068", Flying: "#A890F0", Psychic: "#F85888", Bug: "#A8B820", Rock: "#B8A038", Ghost: "#705898", Dragon: "#7038F8", Dark: "#705848", Steel: "#B8B8D0", Fairy: "#EE99AC" };
 
-    const titleColors = {
-        'x4': '#FF0000',
-        'x2': '#FF4500',
-        'x0-5': '#1E90FF',
-        'x0-25': '#4169E1',
-        'x0': '#4B0082',
-        '': '#000'
+    const typeColors = { 
+        Normal: "#A8A878", Fire: "#F08030", Water: "#6890F0", Grass: "#78C850", Electric: "#F8D030", Ice: "#98D8D8", 
+        Fighting: "#C03028", Poison: "#A040A0", Ground: "#E0C068", Flying: "#A890F0", Psychic: "#F85888", Bug: "#A8B820", 
+        Rock: "#B8A038", Ghost: "#705898", Dragon: "#7038F8", Dark: "#705848", Steel: "#B8B8D0", Fairy: "#EE99AC" 
     };
+
+    const titleColors = { 'x4': '#FF0000', 'x2': '#FF4500', 'x0-5': '#1E90FF', 'x0-25': '#4169E1', 'x0': '#4B0082', '': '#000' };
 
     const type1Select = document.getElementById('type1');
     const type2Select = document.getElementById('type2');
@@ -31,8 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function populateSelectors() {
         [type1Select, type2Select, type3Select].forEach((select, index) => {
-            if (index > 0) select.add(new Option("None", "None"));
+            if (index > 0) select.add(new Option("None", "None")); 
             types.forEach(type => select.add(new Option(type, type)));
+            select.selectedIndex = 0;
         });
     }
 
@@ -146,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 background = typeColors[typeNames[0]] || '#888';
             } else {
                 const colors = typeNames.map(t => typeColors[t] || '#888');
-                background = `linear-gradient(90deg, ${colors.join(', ')})`;
+                background = `linear-gradient(90deg, ${colors.map((c,i) => `${c} ${i*50}%, ${c} ${(i+1)*50}%`).join(', ')})`;
             }
 
             return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item}</li>`;
@@ -157,6 +165,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
-
-
-
