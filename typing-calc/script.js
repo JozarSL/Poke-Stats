@@ -147,15 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function createTypeSection(title, typeArray, className) {
         if (typeArray.length === 0) return '';
         const listItems = typeArray.map(item => {
-            const typeNames = item.split('/'); 
             let background;
+    if (item.includes('/')) {
+        const typeNames = item.split('/');
+        const colors = typeNames.map(t => typeColors[t] || '#888');
+        background = `linear-gradient(90deg, ${colors.join(', ')})`;
+    } else {
+        const typeName = item.split(' ')[0]; // toma solo la primera palabra
+        background = typeColors[typeName] || '#888';
+    }
 
-            if (typeNames.length === 1) {
-                background = typeColors[typeNames[0]] || '#888';
-            } else {
-                const colors = typeNames.map(t => typeColors[t] || '#888');
-                background = `linear-gradient(90deg, ${colors.map((c,i) => `${c} ${i*50}%, ${c} ${(i+1)*50}%`).join(', ')})`;
-            }
 
             return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item}</li>`;
         }).join('');
@@ -165,3 +166,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
+
