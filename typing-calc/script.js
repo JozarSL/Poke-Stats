@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => { 
 
         Ghost: { Normal: 0, Fighting: 0, Poison: 0.5, Bug: 0.5, Ghost: 2, Dark: 2 }, Dragon: { Fire: 0.5, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Dragon: 2, Fairy: 2 },
 
-        Dark: { Fighting: 2, Psychic: 0, Bug: 2, Dark: 0.5, Fairy: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
+        Dark: { Fighting: 2, Psychic: 0, Bug: 2, Dark: 0.5, Ghost: 0.5, Fairy: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
 
         Fairy: { Fighting: 0.5, Poison: 2, Bug: 0.5, Dragon: 0, Dark: 0.5, Steel: 2 }
 
@@ -303,3 +303,4 @@ document.addEventListener('DOMContentLoaded', () => { 
     populateSelectors();
 
 });
+
