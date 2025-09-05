@@ -96,47 +96,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function getOffensiveAnalysisHTML(offensiveTypes) {
     const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
+
+    // Itera sobre todos los tipos defensores posibles
     types.forEach(defendingType => {
-        let bestMultiplier = -1;
-        let bestTypeInfo = null;
+        let bestMultiplier = 0; // Valor inicial para el mejor multiplicador
+        let bestAttackingType = null;
+        let bestTag = null;
+
+        // Comprueba cada tipo ofensivo de tu set contra el tipo defensor actual
         offensiveTypes.forEach(offense => {
             const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
+
             if (multiplier > bestMultiplier) {
                 bestMultiplier = multiplier;
-                bestTypeInfo = offense;
+                bestAttackingType = offense.type;
+                bestTag = offense.tag;
             }
         });
-        // Aquí ajustamos para guardar el tipo defensor, no el ofensivo
-        // y también el mejor multiplicador para la categoría
-        const category = bestMultiplier >= 2 ? 'x2' : bestMultiplier === 1 ? 'x1' : bestMultiplier > 0 ? 'x0.5' : 'x0';
-        matchups[category].push({
-            name: defendingType, // <-- Almacenamos el tipo defensor aquí
-            offendingType: bestTypeInfo.type, // <-- Guardamos el tipo ofensivo que lo cubre
-            tag: bestTypeInfo.tag
-        });
+
+        // Agrega el tipo defensor a la categoría de efectividad correspondiente
+        if (bestMultiplier >= 2) {
+            matchups['x2'].push(defendingType);
+        } else if (bestMultiplier === 1) {
+            matchups['x1'].push(defendingType);
+        } else if (bestMultiplier > 0) {
+            matchups['x0.5'].push(defendingType);
+        } else if (bestMultiplier === 0) {
+            matchups['x0'].push(defendingType);
+        }
     });
 
-    const createList = (title, array, classNameForTitle) => {
-        if (array.length === 0) return '';
-        const listItems = array.map(item => {
-            const typeNames = item.name.split('/'); 
-            let background;
-            if (typeNames.length === 1) {
-                background = typeColors[typeNames[0]] || '#888';
-            } else {
-                const colors = typeNames.map(t => typeColors[t] || '#888');
-                background = `linear-gradient(90deg, ${colors.join(', ')})`;
-            }
-            return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item.name} <span class="tag">(${item.offendingType} ${item.tag})</span></li>`;
+    // Esta función reutilizada crea las secciones con los colores correctos
+    const createTypeSectionForOffense = (title, typeArray, className) => {
+        if (typeArray.length === 0) return '';
+        const listItems = typeArray.map(item => {
+            const background = typeColors[item] || '#888';
+            return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item}</li>`;
         }).join('');
-        const titleColor = titleColors[classNameForTitle] || '#000';
-        return `<div class="offense-category"><h4 style="color:${titleColor}">${title}:</h4><ul class="type-list">${listItems}</ul></div>`;
-    }
+        const titleColor = titleColors[className] || '#000';
+        return `<div class="offense-category"><h4 style="color:${titleColor}">${title}</h4><ul class="type-list">${listItems}</ul></div>`;
+    };
 
-    return createList('Super Effective Against (x2)', matchups['x2'], 'x2') +
-           createList('Neutral Damage Against (x1)', matchups['x1'], '') + // No hay clase específica para neutro en tu CSS
-           createList('Not Very Effective Against (x0.5)', matchups['x0.5'], 'x0-5') +
-           createList('No Effect Against (x0)', matchups['x0'], 'x0');
+    return `
+        ${createTypeSectionForOffense('Super Effective Against (x2)', matchups['x2'], 'x2')}
+        ${createTypeSectionForOffense('Neutral Damage Against (x1)', matchups['x1'], '')}
+        ${createTypeSectionForOffense('Not Very Effective Against (x0.5)', matchups['x0.5'], 'x0-5')}
+        ${createTypeSectionForOffense('No Effect Against (x0)', matchups['x0'], 'x0')}
+    `;
 }
 
     const createList = (title, array) => {
@@ -197,5 +203,6 @@ function getOffensiveAnalysisHTML(offensiveTypes) {
 
     populateSelectors();
 });
+
 
 
