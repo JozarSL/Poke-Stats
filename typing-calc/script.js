@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => { 
+document.addEventListener('DOMContentLoaded', () => {
     const types = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
-    
+
     const typeChart = {
         Normal: { Fighting: 2, Ghost: 0 }, Fire: { Water: 2, Grass: 0.5, Ice: 0.5, Ground: 2, Bug: 0.5, Rock: 2, Steel: 0.5, Fairy: 0.5 },
         Water: { Fire: 0.5, Water: 0.5, Grass: 2, Electric: 2, Ice: 0.5, Steel: 0.5 }, Grass: { Fire: 2, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Poison: 2, Ground: 0.5, Flying: 2, Bug: 2 },
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => { 
         if (type2 !== 'None' && type2 !== type1) defensiveTypes.push(type2);
 
         const offensiveTypes = [{type: type1, tag: '(STAB)'}];
-        if (type2 !== 'None' && type2 !== type1) offensiveTypes.push({ type: type2, tag: '(STAB)'}); 
+        if (type2 !== 'None' && type2 !== type1) offensiveTypes.push({ type: type2, tag: '(STAB)'});
         if (type3 !== 'None') offensiveTypes.push({type: type3, tag: '(NS)'});
         
         displayResults(defensiveTypes, offensiveTypes);
@@ -91,36 +91,27 @@ document.addEventListener('DOMContentLoaded', () => { 
 
     function getOffensiveAnalysisHTML(offensiveTypes) {
         const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
-        types.forEach(defendingType => {
+        const defensiveTypes = types; // Nos aseguramos de iterar sobre todos los tipos defensores.
+        defensiveTypes.forEach(defendingType => {
             let bestMultiplier = 0;
-            let covered = false;
-
             offensiveTypes.forEach(offense => {
                 const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
-                if (multiplier >= 2) {
-                    bestMultiplier = 2;
-                    covered = true;
-                } else if (multiplier === 1 && bestMultiplier < 1) {
-                    bestMultiplier = 1;
-                    covered = true;
-                } else if (multiplier > 0 && multiplier < 1 && bestMultiplier === 0) {
-                    bestMultiplier = 0.5;
-                } else if (multiplier === 0) {
-                    if (bestMultiplier !== 2 && bestMultiplier !== 1 && bestMultiplier !== 0.5) {
-                         bestMultiplier = 0;
-                    }
+                if (multiplier > bestMultiplier) {
+                    bestMultiplier = multiplier;
                 }
             });
 
             if (bestMultiplier >= 2) matchups['x2'].push(defendingType);
             else if (bestMultiplier === 1) matchups['x1'].push(defendingType);
-            else if (bestMultiplier === 0.5) matchups['x0.5'].push(defendingType);
+            else if (bestMultiplier > 0 && bestMultiplier < 1) matchups['x0.5'].push(defendingType);
             else if (bestMultiplier === 0) matchups['x0'].push(defendingType);
-            else if (!covered) matchups['x1'].push(defendingType); // Fallback for types not covered by anything
         });
 
-        // Asegúrate de que los arrays no tengan duplicados, aunque la lógica ya debería manejarlos
-        // matchups['x2'] = [...new Set(matchups['x2'])];
+        // Eliminar duplicados si los hubiera
+        matchups['x2'] = [...new Set(matchups['x2'])];
+        matchups['x1'] = [...new Set(matchups['x1'])];
+        matchups['x0.5'] = [...new Set(matchups['x0.5'])];
+        matchups['x0'] = [...new Set(matchups['x0'])];
 
         return `${createTypeSection('Super Effective Against (x2)', matchups['x2'], 'x2')}
                 ${createTypeSection('Neutral Damage Against (x1)', matchups['x1'], '')}
@@ -167,6 +158,5 @@ document.addEventListener('DOMContentLoaded', () => { 
 
     populateSelectors();
 });
-
 
 
