@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => { 
+document.addEventListener('DOMContentLoaded', () => { 
     const types = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
     
     const typeChart = {
@@ -17,12 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const typeColors = { Normal: "#A8A878", Fire: "#F08030", Water: "#6890F0", Grass: "#78C850", Electric: "#F8D030", Ice: "#98D8D8", Fighting: "#C03028", Poison: "#A040A0", Ground: "#E0C068", Flying: "#A890F0", Psychic: "#F85888", Bug: "#A8B820", Rock: "#B8A038", Ghost: "#705898", Dragon: "#7038F8", Dark: "#705848", Steel: "#B8B8D0", Fairy: "#EE99AC" };
 
     const titleColors = {
-        'x4': '#FF0000',
-        'x2': '#FF4500',
-        'x0-5': '#1E90FF',
-        'x0-25': '#4169E1',
-        'x0': '#4B0082',
-        '': '#000'
+        'x4': '#FF0000', 'x2': '#FF4500', 'x0-5': '#1E90FF', 'x0-25': '#4169E1', 'x0': '#4B0082', '': '#000'
     };
 
     const type1Select = document.getElementById('type1');
@@ -49,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type2 !== 'None' && type2 !== type1) defensiveTypes.push(type2);
 
         const offensiveTypes = [{type: type1, tag: '(STAB)'}];
-        if (type2 !== 'None' && type2 !== type1) offensiveTypes.push({ type: type2, tag: '(STAB)'}); 
+        if (type2 !== 'None' && type2 !== type1) offensiveTypes.push({ type: type2, tag: '(STAB)'}); 
         if (type3 !== 'None') offensiveTypes.push({type: type3, tag: '(NS)'});
         
         displayResults(defensiveTypes, offensiveTypes);
@@ -94,72 +89,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${createTypeSection('Immunities (x0)', matchups['x0'], 'x0')}`;
     }
 
-function getOffensiveAnalysisHTML(offensiveTypes) {
-    const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
+    function getOffensiveAnalysisHTML(offensiveTypes) {
+        const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
+        types.forEach(defendingType => {
+            let bestMultiplier = 0;
+            let covered = false;
 
-    // Itera sobre todos los tipos defensores posibles
-    types.forEach(defendingType => {
-        let bestMultiplier = 0; // Valor inicial para el mejor multiplicador
-        let bestAttackingType = null;
-        let bestTag = null;
+            offensiveTypes.forEach(offense => {
+                const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
+                if (multiplier >= 2) {
+                    bestMultiplier = 2;
+                    covered = true;
+                } else if (multiplier === 1 && bestMultiplier < 1) {
+                    bestMultiplier = 1;
+                    covered = true;
+                } else if (multiplier > 0 && multiplier < 1 && bestMultiplier === 0) {
+                    bestMultiplier = 0.5;
+                } else if (multiplier === 0) {
+                    if (bestMultiplier !== 2 && bestMultiplier !== 1 && bestMultiplier !== 0.5) {
+                         bestMultiplier = 0;
+                    }
+                }
+            });
 
-        // Comprueba cada tipo ofensivo de tu set contra el tipo defensor actual
-        offensiveTypes.forEach(offense => {
-            const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
-
-            if (multiplier > bestMultiplier) {
-                bestMultiplier = multiplier;
-                bestAttackingType = offense.type;
-                bestTag = offense.tag;
-            }
+            if (bestMultiplier >= 2) matchups['x2'].push(defendingType);
+            else if (bestMultiplier === 1) matchups['x1'].push(defendingType);
+            else if (bestMultiplier === 0.5) matchups['x0.5'].push(defendingType);
+            else if (bestMultiplier === 0) matchups['x0'].push(defendingType);
+            else if (!covered) matchups['x1'].push(defendingType); // Fallback for types not covered by anything
         });
 
-        // Agrega el tipo defensor a la categoría de efectividad correspondiente
-        if (bestMultiplier >= 2) {
-            matchups['x2'].push(defendingType);
-        } else if (bestMultiplier === 1) {
-            matchups['x1'].push(defendingType);
-        } else if (bestMultiplier > 0) {
-            matchups['x0.5'].push(defendingType);
-        } else if (bestMultiplier === 0) {
-            matchups['x0'].push(defendingType);
-        }
-    });
+        // Asegúrate de que los arrays no tengan duplicados, aunque la lógica ya debería manejarlos
+        // matchups['x2'] = [...new Set(matchups['x2'])];
 
-    // Esta función reutilizada crea las secciones con los colores correctos
-    const createTypeSectionForOffense = (title, typeArray, className) => {
-        if (typeArray.length === 0) return '';
-        const listItems = typeArray.map(item => {
-            const background = typeColors[item] || '#888';
-            return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item}</li>`;
-        }).join('');
-        const titleColor = titleColors[className] || '#000';
-        return `<div class="offense-category"><h4 style="color:${titleColor}">${title}</h4><ul class="type-list">${listItems}</ul></div>`;
-    };
-
-    return `
-        ${createTypeSectionForOffense('Super Effective Against (x2)', matchups['x2'], 'x2')}
-        ${createTypeSectionForOffense('Neutral Damage Against (x1)', matchups['x1'], '')}
-        ${createTypeSectionForOffense('Not Very Effective Against (x0.5)', matchups['x0.5'], 'x0-5')}
-        ${createTypeSectionForOffense('No Effect Against (x0)', matchups['x0'], 'x0')}
-    `;
-}
-
-    const createList = (title, array) => {
-        if (array.length === 0) return '';
-        const items = array.map(i => {
-            const color = typeColors[i.name] || '#888';
-            return `<li style="background:${color}; color:#fff; padding:2px 6px; border-radius:4px;">${i.name} ${i.tag}</li>`;
-        }).join('');
-        return `<div class="offense-category"><h4>${title}</h4><ul class="type-list">${items}</ul></div>`;
+        return `${createTypeSection('Super Effective Against (x2)', matchups['x2'], 'x2')}
+                ${createTypeSection('Neutral Damage Against (x1)', matchups['x1'], '')}
+                ${createTypeSection('Not Very Effective Against (x0.5)', matchups['x0.5'], 'x0-5')}
+                ${createTypeSection('No Effect Against (x0)', matchups['x0'], 'x0')}`;
     }
-
-    return createList('Super Effective Against', matchups['x2']) +
-           createList('Neutral Damage Against', matchups['x1']) +
-           createList('Not Very Effective Against', matchups['x0.5']) +
-           createList('No Effect Against', matchups['x0']);
-}
-
 
     function getWallAnalysisHTML(offensiveTypes) {
         const wallCombinations = [];
@@ -184,9 +151,6 @@ function getOffensiveAnalysisHTML(offensiveTypes) {
     function createTypeSection(title, typeArray, className) {
         if (typeArray.length === 0) return '';
         const listItems = typeArray.map(item => {
-            if (item.includes('<span')) {
-                return `<li>${item}</li>`;
-            }
             const typeNames = item.split('/');
             let background;
             if (typeNames.length === 1) {
