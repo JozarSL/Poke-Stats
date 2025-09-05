@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const types = ["Normal", "Fire", "Water", "Grass", "Electric", "Ice", "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
-
     const typeChart = {
         Normal: { Fighting: 2, Ghost: 0 }, Fire: { Water: 2, Grass: 0.5, Ice: 0.5, Ground: 2, Bug: 0.5, Rock: 2, Steel: 0.5, Fairy: 0.5 },
         Water: { Fire: 0.5, Water: 0.5, Grass: 2, Electric: 2, Ice: 0.5, Steel: 0.5 }, Grass: { Fire: 2, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Poison: 2, Ground: 0.5, Flying: 2, Bug: 2 },
@@ -96,21 +95,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function getOffensiveAnalysisHTML(offensiveTypes) {
         const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
         types.forEach(defendingType => {
-            let bestMultiplier = 0;
+            let bestMultiplier = -1;
+            let bestTypeInfo = null;
             offensiveTypes.forEach(offense => {
-                const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
+                const multiplier = typeChart[defendingType]?.[offense.type] ?? 1;
                 if (multiplier > bestMultiplier) {
                     bestMultiplier = multiplier;
+                    bestTypeInfo = offense;
                 }
             });
-
-            if (bestMultiplier >= 2) matchups['x2'].push(defendingType);
-            else if (bestMultiplier === 1) matchups['x1'].push(defendingType);
-            else if (bestMultiplier > 0 && bestMultiplier < 1) matchups['x0.5'].push(defendingType);
-            else if (bestMultiplier === 0) matchups['x0'].push(defendingType);
+            const targetHTML = `${defendingType} <span class="tag">${bestTypeInfo.tag}</span>`;
+            if (bestMultiplier >= 2) matchups['x2'].push(targetHTML);
+            else if (bestMultiplier === 1) matchups['x1'].push(targetHTML);
+            else if (bestMultiplier > 0) matchups['x0.5'].push(targetHTML);
+            else matchups['x0'].push(targetHTML);
         });
-        
-        // La función createTypeSection ahora manejará los colores correctamente
         return `${createTypeSection('Super Effective Against', matchups['x2'], 'x2')}
                 ${createTypeSection('Neutral Damage Against', matchups['x1'], '')}
                 ${createTypeSection('Not Very Effective Against', matchups['x0.5'], 'x0-5')}
@@ -140,15 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function createTypeSection(title, typeArray, className) {
         if (typeArray.length === 0) return '';
         const listItems = typeArray.map(item => {
-            const typeNames = item.split('/');
-            let background;
-            if (typeNames.length === 1) {
-                background = typeColors[typeNames[0]] || '#888';
-            } else {
-                const colors = typeNames.map(t => typeColors[t] || '#888');
-                background = `linear-gradient(90deg, ${colors.join(', ')})`;
-            }
-            return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item}</li>`;
+            const typeName = item.split(' ')[0];
+            const color = typeColors[typeName] || '#888';
+            return `<li style="background-color: ${color}">${item}</li>`;
         }).join('');
         const titleColor = titleColors[className] || '#000';
         return `<div class="offense-category"><h4 style="color:${titleColor}">${title}:</h4><ul class="type-list">${listItems}</ul></div>`;
@@ -157,3 +150,4 @@ document.addEventListener('DOMContentLoaded', () => {
     populateSelectors();
 });
 
+});
