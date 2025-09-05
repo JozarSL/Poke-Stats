@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const types = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
+    const types = ["Normal", "Fire", "Water", "Grass", "Electric", "Ice", "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
 
     const typeChart = {
         Normal: { Fighting: 2, Ghost: 0 }, Fire: { Water: 2, Grass: 0.5, Ice: 0.5, Ground: 2, Bug: 0.5, Rock: 2, Steel: 0.5, Fairy: 0.5 },
@@ -10,14 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
         Psychic: { Fighting: 0.5, Psychic: 0.5, Bug: 2, Ghost: 2, Dark: 2 }, Bug: { Fire: 2, Grass: 0.5, Fighting: 0.5, Ground: 0.5, Flying: 2, Rock: 2 },
         Rock: { Normal: 0.5, Fire: 0.5, Water: 2, Grass: 2, Fighting: 2, Poison: 0.5, Ground: 2, Flying: 0.5, Steel: 2 },
         Ghost: { Normal: 0, Fighting: 0, Poison: 0.5, Bug: 0.5, Ghost: 2, Dark: 2 }, Dragon: { Fire: 0.5, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Dragon: 2, Fairy: 2 },
-        Dark: { Psychic: 0, Dark: 0.5, Ghost: 0.5, Bug: 2, Fairy: 2, Fighting: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
+        Dark: { Fighting: 2, Psychic: 0, Bug: 2, Dark: 0.5, Ghost: 0.5, Fairy: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
         Fairy: { Fighting: 0.5, Poison: 2, Bug: 0.5, Dragon: 0, Dark: 0.5, Steel: 2 }
     };
-
     const typeColors = { Normal: "#A8A878", Fire: "#F08030", Water: "#6890F0", Grass: "#78C850", Electric: "#F8D030", Ice: "#98D8D8", Fighting: "#C03028", Poison: "#A040A0", Ground: "#E0C068", Flying: "#A890F0", Psychic: "#F85888", Bug: "#A8B820", Rock: "#B8A038", Ghost: "#705898", Dragon: "#7038F8", Dark: "#705848", Steel: "#B8B8D0", Fairy: "#EE99AC" };
 
     const titleColors = {
-        'x4': '#FF0000', 'x2': '#FF4500', 'x0-5': '#1E90FF', 'x0-25': '#4169E1', 'x0': '#4B0082', '': '#000'
+        'x4': '#FF0000',
+        'x2': '#FF4500',
+        'x0-5': '#1E90FF',
+        'x0-25': '#4169E1',
+        'x0': '#4B0082',
+        '': '#000'
     };
 
     const type1Select = document.getElementById('type1');
@@ -68,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         resultsSection.style.display = 'block';
     }
-
+    
     function getDefensiveAnalysisHTML(defensiveTypes) {
         const matchups = { 'x4': [], 'x2': [], 'x0.5': [], 'x0.25': [], 'x0': [] };
         types.forEach(attackingType => {
@@ -91,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getOffensiveAnalysisHTML(offensiveTypes) {
         const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
-        const defensiveTypes = types; // Nos aseguramos de iterar sobre todos los tipos defensores.
-        defensiveTypes.forEach(defendingType => {
+        types.forEach(defendingType => {
             let bestMultiplier = 0;
             offensiveTypes.forEach(offense => {
                 const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
@@ -106,19 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (bestMultiplier > 0 && bestMultiplier < 1) matchups['x0.5'].push(defendingType);
             else if (bestMultiplier === 0) matchups['x0'].push(defendingType);
         });
-
-        // Eliminar duplicados si los hubiera
-        matchups['x2'] = [...new Set(matchups['x2'])];
-        matchups['x1'] = [...new Set(matchups['x1'])];
-        matchups['x0.5'] = [...new Set(matchups['x0.5'])];
-        matchups['x0'] = [...new Set(matchups['x0'])];
-
-        return `${createTypeSection('Super Effective Against (x2)', matchups['x2'], 'x2')}
-                ${createTypeSection('Neutral Damage Against (x1)', matchups['x1'], '')}
-                ${createTypeSection('Not Very Effective Against (x0.5)', matchups['x0.5'], 'x0-5')}
-                ${createTypeSection('No Effect Against (x0)', matchups['x0'], 'x0')}`;
+        
+        // La función createTypeSection ahora manejará los colores correctamente
+        return `${createTypeSection('Super Effective Against', matchups['x2'], 'x2')}
+                ${createTypeSection('Neutral Damage Against', matchups['x1'], '')}
+                ${createTypeSection('Not Very Effective Against', matchups['x0.5'], 'x0-5')}
+                ${createTypeSection('No Effect Against', matchups['x0'], 'x0')}`;
     }
-
+    
     function getWallAnalysisHTML(offensiveTypes) {
         const wallCombinations = [];
         const defensiveCombos = [];
@@ -158,5 +156,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
-
 
