@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let bestMultiplier = -1;
             let bestTypeInfo = null;
             offensiveTypes.forEach(offense => {
-                const multiplier = typeChart[defendingType]?.[offense.type] ?? 1;
+                const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
                 if (multiplier > bestMultiplier) {
                     bestMultiplier = multiplier;
                     bestTypeInfo = offense;
@@ -151,3 +151,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
+
