@@ -159,7 +159,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-    populateSelectors();
-});
-
 
