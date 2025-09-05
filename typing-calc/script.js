@@ -94,31 +94,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${createTypeSection('Immunities (x0)', matchups['x0'], 'x0')}`;
     }
 
-    function getOffensiveAnalysisHTML(offensiveTypes) {
-        const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
-        types.forEach(defendingType => {
-            let bestMultiplier = -1;
-            let bestTypeInfo = null;
-            offensiveTypes.forEach(offense => {
-                const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
-                if (multiplier > bestMultiplier) {
-                    bestMultiplier = multiplier;
-                    bestTypeInfo = offense;
-                }
-            });
-            const typeColor = typeColors[bestTypeInfo.type] || '#888';
-            const targetHTML = `<span style="background: ${typeColor}; color: #fff; padding: 2px 6px; border-radius: 4px;">${bestTypeInfo.type} ${bestTypeInfo.tag}</span>`;
-
-            if (bestMultiplier >= 2) matchups['x2'].push(targetHTML);
-            else if (bestMultiplier === 1) matchups['x1'].push(targetHTML);
-            else if (bestMultiplier > 0) matchups['x0.5'].push(targetHTML);
-            else matchups['x0'].push(targetHTML);
+function getOffensiveAnalysisHTML(offensiveTypes) {
+    const matchups = { 'x2': [], 'x1': [], 'x0.5': [], 'x0': [] };
+    types.forEach(defendingType => {
+        let bestMultiplier = -1;
+        let bestTypeInfo = null;
+        offensiveTypes.forEach(offense => {
+            const multiplier = typeChart[offense.type]?.[defendingType] ?? 1;
+            if (multiplier > bestMultiplier) {
+                bestMultiplier = multiplier;
+                bestTypeInfo = offense;
+            }
         });
-        return `${createTypeSection('Super Effective Against', matchups['x2'], 'x2')}
-                ${createTypeSection('Neutral Damage Against', matchups['x1'], '')}
-                ${createTypeSection('Not Very Effective Against', matchups['x0.5'], 'x0-5')}
-                ${createTypeSection('No Effect Against', matchups['x0'], 'x0')}`;
+        matchups[bestMultiplier >= 2 ? 'x2' : bestMultiplier === 1 ? 'x1' : bestMultiplier > 0 ? 'x0.5' : 'x0'].push({
+            name: bestTypeInfo.type,
+            tag: bestTypeInfo.tag
+        });
+    });
+
+    const createList = (title, array) => {
+        if (array.length === 0) return '';
+        const items = array.map(i => {
+            const color = typeColors[i.name] || '#888';
+            return `<li style="background:${color}; color:#fff; padding:2px 6px; border-radius:4px;">${i.name} ${i.tag}</li>`;
+        }).join('');
+        return `<div class="offense-category"><h4>${title}</h4><ul class="type-list">${items}</ul></div>`;
     }
+
+    return createList('Super Effective Against', matchups['x2']) +
+           createList('Neutral Damage Against', matchups['x1']) +
+           createList('Not Very Effective Against', matchups['x0.5']) +
+           createList('No Effect Against', matchups['x0']);
+}
+
 
     function getWallAnalysisHTML(offensiveTypes) {
         const wallCombinations = [];
@@ -162,3 +170,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
+
