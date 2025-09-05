@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => { 
-    const types = ["Normal", "Fire", "Water", "Grass", "Electric", "Ice", "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
+    const types = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
     const typeChart = {
         Normal: { Fighting: 2, Ghost: 0 }, Fire: { Water: 2, Grass: 0.5, Ice: 0.5, Ground: 2, Bug: 0.5, Rock: 2, Steel: 0.5, Fairy: 0.5 },
         Water: { Fire: 0.5, Water: 0.5, Grass: 2, Electric: 2, Ice: 0.5, Steel: 0.5 }, Grass: { Fire: 2, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Poison: 2, Ground: 0.5, Flying: 2, Bug: 2 },
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Psychic: { Fighting: 0.5, Psychic: 0.5, Bug: 2, Ghost: 2, Dark: 2 }, Bug: { Fire: 2, Grass: 0.5, Fighting: 0.5, Ground: 0.5, Flying: 2, Rock: 2 },
         Rock: { Normal: 0.5, Fire: 0.5, Water: 2, Grass: 2, Fighting: 2, Poison: 0.5, Ground: 2, Flying: 0.5, Steel: 2 },
         Ghost: { Normal: 0, Fighting: 0, Poison: 0.5, Bug: 0.5, Ghost: 2, Dark: 2 }, Dragon: { Fire: 0.5, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Dragon: 2, Fairy: 2 },
-        Dark: { Fighting: 2, Psychic: 0, Bug: 2, Dark: 0.5, Fairy: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
+        Dark: { Psychic: 0, Dark: 0.5, Ghost: 0.5, Bug: 2, Fairy: 2, Fighting: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
         Fairy: { Fighting: 0.5, Poison: 2, Bug: 0.5, Dragon: 0, Dark: 0.5, Steel: 2 }
     };
     const typeColors = { Normal: "#A8A878", Fire: "#F08030", Water: "#6890F0", Grass: "#78C850", Electric: "#F8D030", Ice: "#98D8D8", Fighting: "#C03028", Poison: "#A040A0", Ground: "#E0C068", Flying: "#A890F0", Psychic: "#F85888", Bug: "#A8B820", Rock: "#B8A038", Ghost: "#705898", Dragon: "#7038F8", Dark: "#705848", Steel: "#B8B8D0", Fairy: "#EE99AC" };
@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         types.forEach(attackingType => {
             let multiplier = 1;
             defensiveTypes.forEach(defendingType => {
-                // <-- cambio importante: usar ?? en vez de || para preservar 0 (inmunidades)
                 multiplier *= (typeChart[defendingType]?.[attackingType] ?? 1);
             });
             if (multiplier === 4) matchups['x4'].push(attackingType);
@@ -128,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const isWall = offensiveTypes.every(offense => {
                 let totalMultiplier = 1;
                 combo.forEach(defensiveType => {
-                    // <-- y aquí también usar ?? para preservar 0
                     totalMultiplier *= (typeChart[defensiveType]?.[offense.type] ?? 1);
                 });
                 return totalMultiplier < 1;
@@ -141,9 +139,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function createTypeSection(title, typeArray, className) {
         if (typeArray.length === 0) return '';
         const listItems = typeArray.map(item => {
-            const typeName = item.split(' ')[0];
-            const color = typeColors[typeName] || '#888';
-            return `<li style="background-color: ${color}">${item}</li>`;
+            const typeNames = item.split('/'); 
+            let background;
+
+            if (typeNames.length === 1) {
+                background = typeColors[typeNames[0]] || '#888';
+            } else {
+                const colors = typeNames.map(t => typeColors[t] || '#888');
+                background = `linear-gradient(90deg, ${colors.join(', ')})`;
+            }
+
+            return `<li style="background: ${background}; color: #fff; text-shadow: 1px 1px 2px #000;">${item}</li>`;
         }).join('');
         const titleColor = titleColors[className] || '#000';
         return `<div class="offense-category"><h4 style="color:${titleColor}">${title}:</h4><ul class="type-list">${listItems}</ul></div>`;
@@ -151,4 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
+
+
+    populateSelectors();
+});
+
 
