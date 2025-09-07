@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const build of builds) {
             if (signal.aborted) return;
 
-            // 1. Display the stat bars
             const buildDiv = document.createElement('div');
             buildDiv.className = 'build-container';
             const title = document.createElement('h3');
@@ -205,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             ingameStatsResultsDiv.appendChild(buildDiv);
 
-            // 2. Find and display the comparisons
             const userHp = build.stats.HP;
             const userDef = build.stats.Defense;
             const userSpd = build.stats['Sp. Defense'];
@@ -228,8 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pokeDef = calculateStat(stats.defense, build.evs.def);
                 const pokeSpd = calculateStat(stats.spDefense, build.evs.spd);
 
-                const physicalBulk = (pokeHp * pokeDef)/804.76;
-                const specialBulk = (pokeHp * pokeSpd)/804.76;
+                const physicalBulk = Math.sqrt(pokeHp * pokeDef);
+                const specialBulk = Math.sqrt(pokeHp * pokeSpd);
 
                 const physicalDiff = Math.abs(userPhysicalBulk - physicalBulk);
                 const specialDiff = Math.abs(userSpecialBulk - specialBulk);
@@ -246,9 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
             comparisonDiv.className = 'comparison-section';
             comparisonDiv.innerHTML = `
                 <p>Your Calculated Physical Bulk: <strong>${userPhysicalBulk.toFixed(2)}</strong></p>
-                <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Bulk: ${closestPhysical.physicalBulk.toFixed(2)})</p>
+                <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Coef. Bulk: ${closestPhysical.physicalBulk.toFixed(2)})</p>
                 <p>Your Calculated Special Bulk: <strong>${userSpecialBulk.toFixed(2)}</strong></p>
-                <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Bulk: ${closestSpecial.specialBulk.toFixed(2)})</p>
+                <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Coef. Bulk: ${closestSpecial.specialBulk.toFixed(2)})</p>
             `;
             ingameStatsResultsDiv.appendChild(comparisonDiv);
         }
@@ -294,5 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
 
 
