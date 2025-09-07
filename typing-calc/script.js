@@ -9,11 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
         Psychic: { Fighting: 0.5, Psychic: 0.5, Bug: 2, Ghost: 2, Dark: 2 }, Bug: { Fire: 2, Grass: 0.5, Fighting: 0.5, Ground: 0.5, Flying: 2, Rock: 2 },
         Rock: { Normal: 0.5, Fire: 0.5, Water: 2, Grass: 2, Fighting: 2, Poison: 0.5, Ground: 2, Flying: 0.5, Steel: 2 },
         Ghost: { Normal: 0, Fighting: 0, Poison: 0.5, Bug: 0.5, Ghost: 2, Dark: 2 }, Dragon: { Fire: 0.5, Water: 0.5, Grass: 0.5, Electric: 0.5, Ice: 2, Dragon: 2, Fairy: 2 },
-        Dark: { Fighting: 2, Psychic: 0, Bug: 2, Dark: 0.5, Ghost: 0.5, Fairy: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
+        Dark: { Fighting: 2, Psychic: 0, Bug: 2, Ghost: 0.5, Dark: 0.5, Fairy: 2 }, Steel: { Normal: 0.5, Fire: 2, Grass: 0.5, Ice: 0.5, Fighting: 2, Poison: 0, Ground: 2, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 0.5, Dragon: 0.5, Steel: 0.5, Fairy: 0.5 },
         Fairy: { Fighting: 0.5, Poison: 2, Bug: 0.5, Dragon: 0, Dark: 0.5, Steel: 2 }
     };
     const typeColors = { Normal: "#A8A878", Fire: "#F08030", Water: "#6890F0", Grass: "#78C850", Electric: "#F8D030", Ice: "#98D8D8", Fighting: "#C03028", Poison: "#A040A0", Ground: "#E0C068", Flying: "#A890F0", Psychic: "#F85888", Bug: "#A8B820", Rock: "#B8A038", Ghost: "#705898", Dragon: "#7038F8", Dark: "#705848", Steel: "#B8B8D0", Fairy: "#EE99AC" };
 
+    // Colores para los títulos según efectividad
     const titleColors = {
         'x4': '#FF0000',
         'x2': '#FF4500',
@@ -151,5 +152,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateSelectors();
 });
-
-
