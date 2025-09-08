@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await Promise.allSettled(
             toFetch.map(p => limit(async () => {
                 if (signal?.aborted) return;
-                const s = await fetchPokemonStats(p);
+                await fetchPokemonStats(p);
                 done++;
                 if (done % 10 === 0 || done === total) {
                     loadingMessage.textContent = `Downloading base stats... ${done}/${total}`;
@@ -189,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: "0 EVs", stats: { "HP": calculateHP(hp, 0), "Defense": calculateStat(def, 0), "Sp. Defense": calculateStat(spd, 0) }, evs: { hp: 0, def: 0, spd: 0 } }
         ];
 
+        const fragment = document.createDocumentFragment();
+
         for (const build of builds) {
             if (signal.aborted) return;
 
@@ -202,16 +204,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const statBar = createStatBar(statName, statValue);
                 buildDiv.appendChild(statBar);
             }
-            ingameStatsResultsDiv.appendChild(buildDiv);
-
+            
             const userHp = build.stats.HP;
             const userDef = build.stats.Defense;
             const userSpd = build.stats['Sp. Defense'];
-            const userPhysicalBulk = Math.sqrt(userHp * userDef);
-            const userSpecialBulk = Math.sqrt(userHp * userSpd);
 
-            let closestPhysical = { diff: Infinity, name: '' };
-            let closestSpecial = { diff: Infinity, name: '' };
+            const userPhysicalBulk = userHp * userDef;
+            const userSpecialBulk = userHp * userSpd;
+
+            const displayUserPhysicalBulk = Math.sqrt(userPhysicalBulk);
+            const displayUserSpecialBulk = Math.sqrt(userSpecialBulk);
+            
+            let closestPhysical = { diff: Infinity, name: '', displayBulk: 0, calculatedStats: {} };
+            let closestSpecial = { diff: Infinity, name: '', displayBulk: 0, calculatedStats: {} };
 
             for (const p of allPokemonList) {
                 if (signal.aborted) return;
@@ -225,31 +230,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pokeHp = calculateHP(stats.hp, build.evs.hp);
                 const pokeDef = calculateStat(stats.defense, build.evs.def);
                 const pokeSpd = calculateStat(stats.spDefense, build.evs.spd);
-
-                const physicalBulk = Math.sqrt(pokeHp * pokeDef);
-                const specialBulk = Math.sqrt(pokeHp * pokeSpd);
-
+                
+                const physicalBulk = pokeHp * pokeDef;
+                const specialBulk = pokeHp * pokeSpd;
+                
                 const physicalDiff = Math.abs(userPhysicalBulk - physicalBulk);
                 const specialDiff = Math.abs(userSpecialBulk - specialBulk);
 
                 if (physicalDiff < closestPhysical.diff) {
-                    closestPhysical = { ...stats, diff: physicalDiff, physicalBulk: physicalBulk, calculatedStats: { hp: pokeHp, def: pokeDef, spd: pokeSpd } };
+                    closestPhysical = { ...stats, diff: physicalDiff, displayBulk: Math.sqrt(physicalBulk), calculatedStats: { hp: pokeHp, def: pokeDef, spd: pokeSpd } };
                 }
                 if (specialDiff < closestSpecial.diff) {
-                    closestSpecial = { ...stats, diff: specialDiff, specialBulk: specialBulk, calculatedStats: { hp: pokeHp, def: pokeDef, spd: pokeSpd } };
+                    closestSpecial = { ...stats, diff: specialDiff, displayBulk: Math.sqrt(specialBulk), calculatedStats: { hp: pokeHp, def: pokeDef, spd: pokeSpd } };
                 }
             }
-
+            
             const comparisonDiv = document.createElement('div');
             comparisonDiv.className = 'comparison-section';
             comparisonDiv.innerHTML = `
-                <p>Your Calculated Physical Bulk: <strong>${userPhysicalBulk.toFixed(2)}</strong></p>
-                <p>Closest Physical Bulk is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp}, ${closestPhysical.calculatedStats.def}; Coef. Bulk: ${closestPhysical.physicalBulk.toFixed(2)})</p>
-                <p>Your Calculated Special Bulk: <strong>${userSpecialBulk.toFixed(2)}</strong></p>
-                <p>Closest Special Bulk is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp}, ${closestSpecial.calculatedStats.spd}; Coef. Bulk: ${closestSpecial.specialBulk.toFixed(2)})</p>
+                <p>Your Physical Bulk (SQRT): <strong>${displayUserPhysicalBulk.toFixed(2)}</strong></p>
+                <p>Closest is: <strong>${capitalize(closestPhysical.name)}</strong> (${closestPhysical.calculatedStats.hp} HP / ${closestPhysical.calculatedStats.def} Def; Bulk: ${closestPhysical.displayBulk.toFixed(2)})</p>
+                <p>Your Special Bulk (SQRT): <strong>${displayUserSpecialBulk.toFixed(2)}</strong></p>
+                <p>Closest is: <strong>${capitalize(closestSpecial.name)}</strong> (${closestSpecial.calculatedStats.hp} HP / ${closestSpecial.calculatedStats.spd} SpD; Bulk: ${closestSpecial.displayBulk.toFixed(2)})</p>
             `;
-            ingameStatsResultsDiv.appendChild(comparisonDiv);
+            
+            fragment.appendChild(buildDiv);
+            fragment.appendChild(comparisonDiv);
         }
+        ingameStatsResultsDiv.appendChild(fragment);
     }
 
     function getColor(stat) {
@@ -292,7 +300,4 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
-
-
-
 
