@@ -207,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const userHp = build.stats.HP;
             const userDef = build.stats.Defense;
             const userSpd = build.stats['Sp. Defense'];
-            const userPhysicalBulk = (userHp * userDef)/804.76;
-            const userSpecialBulk = (userHp * userSpd)/804.76;
+            const userPhysicalBulk = Math.sqrt(userHp * userDef);
+            const userSpecialBulk = Math.sqrt(userHp * userSpd);
 
             let closestPhysical = { diff: Infinity, name: '' };
             let closestSpecial = { diff: Infinity, name: '' };
@@ -292,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', findAndDisplay);
     fetchPokemonList();
 });
+
 
 
 
